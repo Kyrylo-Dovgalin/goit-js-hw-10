@@ -31,7 +31,7 @@ function onValueInput(e) {
           `Too many matches found. Please enter a more specific name.`
         );
       } else if (countries.length > 1 && countries.length <= 10) {
-        for (country of countries) {
+        for (const country of countries) {
           createCountriesMarkUp(country);
         }
       } else if (countries.length === 1) {
