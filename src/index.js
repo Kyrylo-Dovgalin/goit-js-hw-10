@@ -30,15 +30,11 @@ function onValueInput(e) {
         Notiflix.Notify.info(
           `Too many matches found. Please enter a more specific name.`
         );
-        return;
-      }
-      if (countries.length > 1 && countries.length <= 10) {
+      } else if (countries.length > 1 && countries.length <= 10) {
         for (country of countries) {
           createCountriesMarkUp(country);
         }
-        //return;
-      }
-      if (countries.length === 1) {
+      } else if (countries.length === 1) {
         createCoutryDetailsMarkUp(countries[0]);
       }
     })
