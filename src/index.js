@@ -36,7 +36,7 @@ function onValueInput(e) {
         for (country of countries) {
           createCountriesMarkUp(country);
         }
-        return;
+        //return;
       }
       if (countries.length === 1) {
         createCoutryDetailsMarkUp(countries[0]);
