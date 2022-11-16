@@ -1,17 +1,9 @@
 import './css/styles.css';
 import Notiflix from 'notiflix';
 import Debounce from 'lodash.debounce';
+import { fetchCountries } from './api/api-country-service';
 
 const DEBOUNCE_DELAY = 300;
-
-// const searchParams = new URLSearchParams({
-//   _limit: 5,
-//   _sort: 'name',
-// });
-
-// console.log(searchParams.toString()); // "_limit=5&_sort=name"
-
-// const url = `https://jsonplaceholder.typicode.com/users?${searchParams}`;
 
 const refs = {
   inputField: document.querySelector('#search-box'),
@@ -25,14 +17,30 @@ refs.inputField.addEventListener(
 );
 
 function onValueInput(e) {
-  const searchQuery = e.target.value;
+  const searchQuery = e.target.value.trim();
+  clearMarkUp();
+
+  if (!searchQuery) {
+    return;
+  }
 
   fetchCountries(searchQuery)
     .then(countries => {
-      for (country of countries) {
-        console.log(country.capital.join(' '));
+      if (countries.length > 10) {
+        Notiflix.Notify.info(
+          `Too many matches found. Please enter a more specific name.`
+        );
+        return;
       }
-      createMarkUp(country);
+      if (countries.length > 1 && countries.length <= 10) {
+        for (country of countries) {
+          createCountriesMarkUp(country);
+        }
+        return;
+      }
+      if (countries.length === 1) {
+        createCoutryDetailsMarkUp(countries[0]);
+      }
     })
     .catch(error =>
       Notiflix.Notify.failure(
@@ -41,20 +49,26 @@ function onValueInput(e) {
     );
 }
 
-function fetchCountries(name) {
-  return fetch(
-    `https://restcountries.com/v3.1/name/${name}?fields=name.official,capital,population`
-  ).then(response => {
-    if (!response.ok) {
-      throw new Error(response.status);
-    }
-    return response.json();
-  });
+function createCountriesMarkUp({
+  name: { official } = {},
+  flags: { svg } = {},
+} = {}) {
+  const markUp = `<li> <img src=${svg} width = "25"/> ${official}</li>`;
+  refs.countryList.insertAdjacentHTML('beforeend', markUp);
 }
 
-function createMarkUp(country) {
+function createCoutryDetailsMarkUp({
+  name: { official } = {},
+  flags: { svg } = {},
+  capital = '',
+  population = '',
+  languages = [],
+} = {}) {
+  const language = Object.values(languages).join(', ');
+  refs.countryInfo.innerHTML = `<img src=${svg} width = "25"/> <span>${official}</span> <p>Capital: ${capital}</p> <p> Population ${population}</p> <p>Languages ${language} </p>`;
+}
+
+function clearMarkUp() {
   refs.countryList.innerHTML = ``;
   refs.countryInfo.innerHTML = ``;
 }
-
-//,capital,population,flags.svg,languages
